@@ -664,3 +664,96 @@ Actions Taken:
 * Hardened static path resolution and confirmed normal assets and traversal rejection.
 * Ran node --check server.js, npm run check, npm test (16/16), production guard checks, and git diff --check.
 * Verified .env ignore status, root package-lock absence, src/package-lock presence, and left unrelated root artifacts unstaged.
+================================================================================
+[2026-10-05T20:28:17+05:30] Fix Render production port binding
+================================================================================
+User Prompt (verbatim):
+Fix the Render deployment port-binding issue in the existing MediShield project.
+
+IMPORTANT:
+- Do NOT rebuild the project.
+- Do NOT modify unrelated functionality.
+- Do NOT weaken security.
+- Do NOT change tests.
+- Make the smallest production-safe change.
+- Preserve all existing local development behavior as much as possible.
+
+PROJECT:
+C:\Users\sanda\BuildSecure
+
+APP:
+C:\Users\sanda\BuildSecure\src
+
+CURRENT RENDER ERROR:
+
+MediShield listening on http://127.0.0.1:4100
+
+Render reports:
+
+No open ports detected on 0.0.0.0
+Detected open ports on localhost
+
+Therefore the Node server is binding only to localhost.
+
+TASK:
+
+1. Inspect src/server.js and find the PORT/HOST configuration and server.listen() call.
+
+2. Make the server use Render's injected PORT:
+
+const PORT = Number(process.env.PORT || 4100);
+
+3. Make the production server bind to all interfaces:
+
+const HOST =
+  process.env.NODE_ENV === 'production'
+    ? '0.0.0.0'
+    : (process.env.HOST || '127.0.0.1');
+
+4. Ensure the final server startup uses:
+
+server.listen(PORT, HOST, () => {
+  console.log(`MediShield listening on http://${HOST}:${PORT}`);
+});
+
+If the project uses app.listen() instead of server.listen(), adapt the same logic without changing functionality.
+
+5. IMPORTANT:
+Do not hardcode Render's port.
+Do not hardcode a production port such as 4100.
+Render supplies process.env.PORT.
+
+6. Preserve all existing security controls and Socket.IO sharing the same HTTP server.
+
+7. Do NOT add HOST=127.0.0.1 to production environment variables.
+
+8. Verify node --check server.js, npm run check, npm test (expected 16/16, no skip), and git diff --check.
+
+9. Show the exact server.js diff.
+
+10. If all tests pass, commit only this legitimate fix with:
+git add src/server.js
+git commit -m "fix: bind MediShield server to Render port"
+
+11. Push with git push origin main. Do not force-push.
+
+12. Do not claim deployment success; report only that the code fix was pushed.
+
+Agent Response:
+Updated only the production host selection in `src/server.js`: production now binds to `0.0.0.0`, while development continues to honor `HOST` and otherwise binds to `127.0.0.1`. The existing `PORT` expression and shared HTTP server used by Socket.IO are unchanged. `node --check server.js`, `npm run check`, `npm test` (16 passed, 0 failed, 0 skipped), and `git diff --check` all passed.
+
+Agent Response Summary:
+Fixed Render's localhost-only binding by binding production to all interfaces without changing local defaults or security controls. The fix was tested and is ready for the requested commit and push; no deployment-success claim is made.
+
+Commit SHA:
+4f18770
+
+Files Modified / Created:
+* src/server.js (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Inspected the existing PORT/HOST setup, server startup, current changes, and architecture documentation.
+* Applied the production-only host binding adjustment.
+* Ran node --check server.js, npm run check, npm test (16/16, zero skipped), and git diff --check.
+* Reviewed the exact server.js diff.
