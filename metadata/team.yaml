@@ -4,16 +4,12 @@
 # - If your team has 4 members: provide all 4 members.
 
 team:
-  team_id: ""
-  name: ""
-  repository: "" # URL of the newly created GitHub repository for this project
+  team_id: "02A"
+  name: "Nexas"
+  repository: "https://github.com/25p61a05e3-collab/Nexas-MediShield.git" # URL of the newly created GitHub repository for this project
 
 members:
-  - name: ""
-    email: ""
-  - name: ""
-    email: ""
-  - name: ""
-    email: ""
-  - name: ""
-    email: ""
+  - name: "Sandarsh Jeripothula"
+    email: "sandarsh666@gmail.com"
+  - name: "Kunchala Akhila"
+    email: "25p61a05i6@vbithyd.ac.in"

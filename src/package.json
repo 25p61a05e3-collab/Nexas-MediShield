@@ -1,0 +1,13 @@
+{
+  "name": "medishield",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MediShield secure synthetic clinic prototype",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/security.test.js",
+    "check": "node --check server.js && node --check public/app.js"
+  },
+  "engines": { "node": ">=18" }
+}

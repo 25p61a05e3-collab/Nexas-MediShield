@@ -80,3 +80,26 @@ All 4 team members can work simultaneously across separate laptops:
 ---
 
 *Build freely. Use AI freely. Secure what you build. Document what you claim. Prove what you implemented.*
+
+---
+
+## MediShield implementation
+
+The Nexas team implementation lives in `src/` and provides a working synthetic clinic workflow plus a security demonstration. See:
+
+- `docs/GAP_ANALYSIS.md` for the starter-to-product gap analysis.
+- `docs/API.md` for routes and demo accounts.
+- `docs/SECURITY.md` for server-side controls and limitations.
+- `docs/VERIFICATION.md` for independent verification evidence and remaining deployment gaps.
+- `deployment/README.md` for local startup and deployment requirements.
+
+Run locally:
+
+```bash
+cd src
+npm run check
+npm test
+npm start
+```
+
+The main red-team path is: Doctor A reads Patient A's consented record, attempts Patient B's record and receives `403`, then an administrator sees the generated security event, tests the `HONEY-001` alert, and activates incident lockdown.

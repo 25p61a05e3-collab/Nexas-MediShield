@@ -4,8 +4,8 @@
 version: "1.0"
 
 submission:
-  team_id: ""
-  repository: ""
+  team_id: "02A"
+  repository: "https://github.com/25p61a05e3-collab/Nexas-MediShield.git"
   commit_sha: ""
   deployment_url: ""
   submitted_at: ""

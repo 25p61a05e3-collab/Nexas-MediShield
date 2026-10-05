@@ -1,0 +1,13 @@
+# Local secrets and runtime state
+.env
+.env.*
+!.env.example
+src/data/*.json
+src/data/*.tmp
+
+# Node and local tooling
+node_modules/
+*.log
+
+# Generated delivery artifacts
+outputs/
