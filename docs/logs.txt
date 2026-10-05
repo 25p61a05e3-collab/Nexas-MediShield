@@ -1246,3 +1246,208 @@ Actions Taken:
 * Added ten fixed informational article elements to the Admin Security Center.
 * Added a scoped two-column desktop, one-column narrow-screen stylesheet.
 * Verified exactly ten named cards, zero interactive elements, `npm run check`, `npm test` (16/16), and `git diff --check`.
+================================================================================
+[2026-10-05T21:21:17+05:30] Fix production cross-site session cookie
+================================================================================
+User Prompt (verbatim):
+MEDISHIELD PRODUCTION COOKIE FIX — IMPORTANT
+
+We have identified a production authentication issue.
+
+Frontend:
+https://medishield-nexas.netlify.app
+
+Backend:
+https://nexas-medishield.onrender.com
+
+The backend /api/health endpoint works and the Netlify login request succeeds,
+but subsequent authenticated API requests return:
+
+"Authentication required."
+
+The current session cookie uses:
+
+SameSite=Lax
+
+This prevents the cross-site Netlify → Render authenticated fetch requests
+from consistently sending the session cookie.
+
+FIX THIS WITHOUT WEAKENING SECURITY.
+
+==================================================
+REQUIRED CHANGE
+==================================================
+
+Inspect the existing setCookie() implementation in server.js.
+
+Keep local/development behavior unchanged.
+
+For production only, the session cookie must use:
+
+HttpOnly
+Secure
+SameSite=None
+Path=/
+Max-Age=...
+
+For development/test environments, preserve the existing appropriate
+SameSite behavior so the existing tests continue to work.
+
+Example architecture:
+
+const sameSite = NODE_ENV === 'production' ? 'None' : 'Lax';
+
+Then construct the cookie using:
+
+SameSite=${sameSite}
+
+Do NOT expose the session cookie to JavaScript.
+
+Do NOT remove HttpOnly.
+
+Do NOT remove Secure in production.
+
+Do NOT weaken session signing.
+
+Do NOT change session expiration.
+
+Do NOT change session rotation/revocation.
+
+==================================================
+CSRF / ORIGIN SECURITY
+==================================================
+
+IMPORTANT:
+
+Because SameSite=None is required for the deployed Netlify → Render
+architecture, retain the existing strict Origin validation.
+
+The backend currently rejects requests when:
+
+req.headers.origin && req.headers.origin !== CORS_ORIGIN
+
+Do NOT remove or weaken this protection.
+
+Do NOT replace it with wildcard CORS.
+
+Do NOT use:
+
+Access-Control-Allow-Origin: *
+
+Do NOT allow arbitrary origins.
+
+CORS_ORIGIN must remain the exact Netlify origin:
+
+https://medishield-nexas.netlify.app
+
+Credentials must remain enabled.
+
+==================================================
+SOCKET.IO
+==================================================
+
+Do not change the existing authenticated Socket.IO security model.
+
+Socket.IO must continue using:
+
+origin: CORS_ORIGIN
+credentials: true
+
+and the existing server-side getUser() authentication.
+
+Do not bypass socket authentication.
+
+==================================================
+IMPORTANT
+==================================================
+
+Do not change:
+
+- authentication logic
+- password hashing
+- session signing
+- session IDs
+- session expiry
+- session family logic
+- replay detection
+- session revocation
+- RBAC
+- BOLA protection
+- consent
+- audit
+- honeytoken
+- anomaly detection
+- lockdown
+- Red Team
+- AI
+- database
+- API routes
+
+This is ONLY a production cross-site session-cookie compatibility fix.
+
+==================================================
+VALIDATION
+==================================================
+
+Run:
+
+cd C:\Users\sanda\BuildSecure\src
+
+npm run check
+
+npm test
+
+Expected:
+
+16 passed
+0 failed
+0 skipped
+
+Then inspect the diff.
+
+The preferred diff should be extremely small and primarily limited to
+the cookie SameSite handling.
+
+Do NOT commit or push automatically unless the repository's existing
+turn-logging workflow requires it.
+
+==================================================
+PRODUCTION VERIFICATION
+==================================================
+
+After the code change, explain how to verify:
+
+1. Netlify login succeeds.
+2. Admin dashboard loads.
+3. Security Center loads without "Authentication required".
+4. Users loads.
+5. Appointments loads.
+6. Profile loads.
+7. Authenticated API requests contain credentials.
+8. Socket.IO remains authenticated.
+9. Logout still revokes the session.
+
+Do not make unrelated changes.
+
+Agent Response:
+Changed only production cookie SameSite selection in `setCookie()`: production mode (`NODE_ENV=production` or Render's `RENDER_SERVICE_ID`) now uses `SameSite=None`; development/test continues using `SameSite=Lax`. The cookie remains HttpOnly and retains Secure in production, Path, and the existing Max-Age. Session signing, expiry, authentication, strict Origin validation, exact CORS allowlist behavior, credential support, and Socket.IO authentication were unchanged. Production smoke verification confirmed the required cookie flags, an authenticated follow-up API request using the returned cookie, and rejection of a disallowed Origin; development smoke verification confirmed Lax remains and Secure is absent. `npm run check` passed and `npm test` passed 16/16 with zero failures or skips.
+
+To verify after deploying the backend: set `CORS_ORIGIN` to exactly `https://medishield-nexas.netlify.app`, deploy the new Render commit, then log in from Netlify and inspect the login response's Set-Cookie attributes (HttpOnly, Secure, SameSite=None). Confirm browser storage shows the cookie for the Render domain, then check `/api/me`, Admin Security Center, Users, Appointments, and Profile requests return authenticated responses and include credentials; confirm the Socket.IO connection authenticates with the session cookie; finally log out and verify protected requests return 401. Browser-based live deployment verification was not performed in this environment.
+
+Agent Response Summary:
+Applied the narrow cookie compatibility adjustment while preserving HttpOnly, Secure production transport, same-origin restrictions, and all session/security behavior. Production and development cookie/session smoke checks passed, as did the existing 16-test suite and project checks. The repository workflow requires logging, committing, and pushing the turn; live production browser verification remains outstanding.
+
+Commit SHA:
+b4c10d4
+
+Files Modified / Created:
+* src/server.js (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Inspected existing cookie construction and Render-aware production mode.
+* Switched SameSite to None only for production mode; retained Lax otherwise.
+* Verified production cookie flags, authenticated follow-up request, and rejection of an unauthorized Origin using synthetic credentials.
+* Verified development cookie remains HttpOnly, SameSite=Lax, and non-Secure.
+* Ran node --check server.js, npm run check, and npm test (16/16 passed, zero skipped).
+* Reviewed the exact source diff and confirmed git diff --check.
