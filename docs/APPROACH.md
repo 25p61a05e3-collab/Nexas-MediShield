@@ -1,4 +1,4 @@
-# Project Approach & Architecture — Build Secure 24
+﻿# Project Approach & Architecture — Build Secure 24
 
 **Team ID:** 02A
 **Project Name:** MediShield
@@ -107,3 +107,24 @@ The browser sends same-origin requests with an opaque session cookie. The API au
 - **Live Deployment Platform:** Not deployed; local Node runtime is documented as a prototype limitation.
 - **Deployment URL:** Intentionally blank until the team provisions HTTPS hosting and a managed database.
 - **Health Check Endpoint:** `GET /api/health`, secret-free and synthetic-data marked.
+
+### ADR-003: Server-authoritative realtime transport
+- **Status:** Accepted
+- **Context:** The product demo must show Patient, Doctor, and Admin clients reacting to the same security state without terminal commands or refreshes.
+- **Decision:** Attach Socket.IO to the existing HTTP server. Authenticate the handshake from the existing session cookie, derive scoped rooms from the authenticated identity, and emit minimized domain/security events only after REST authorization and audit logic succeeds.
+- **Security trade-off:** The current single-process transport is suitable for a controlled demo but is not a horizontally scaled event architecture. Sensitive clinical payloads remain REST-only and are never broadcast.
+
+### ADR-004: Real backend simulations over frontend claims
+- **Status:** Accepted
+- **Context:** Judges need repeatable BOLA, honeytoken, anomaly, containment, audit, and reset demonstrations from the browser.
+- **Decision:** Add admin-only routes that invoke existing authorization, audit, honeytoken, anomaly, lockdown, and persistence logic. The UI displays returned backend results and never increments security counters itself.
+
+### [2026-10-05 15:43 IST] Entry 3: Live zero-trust extension
+- **Focus:** Extend the secure clinic prototype into a Socket.IO-backed three-device demonstration while preserving the REST security foundation.
+- **Key Challenges:** The execution device blocks local WebSocket connections, so the transport test cannot honestly be reported as a pass here.
+- **Resolution:** Added authenticated Socket.IO rooms, server-authoritative event publication, live notifications, admin red-team controls, configurable LAN binding, and a regression test that passes when transport is available and skips only on the documented device restriction.
+
+### 6.3 Realtime verification boundary
+- `npm run check` passed after the realtime extension.
+- `npm test` executed 13 tests: 12 passed and 1 Socket.IO transport test skipped because this device returns a local WebSocket error.
+- No browser or three-device network PASS is claimed in this environment.

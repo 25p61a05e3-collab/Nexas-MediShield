@@ -61,6 +61,8 @@ async function makeSeed() {
     consents: [
       { id: 'consent-001', patientId: 'patient-a', doctorId: 'doctor-a', active: true, context: 'Appointment apt-001', expiresAt: '2026-12-31T23:59:59.000Z', createdAt: now }
     ],
+    consentRequests: [],
+    provenance: [],
     audit: [],
     security: [],
     settings: { lockdown: false, lockdownAt: null, previousAuditHash: 'GENESIS' }
@@ -78,6 +80,12 @@ export async function loadStore() {
     await saveStore(seeded);
     return seeded;
   }
+}
+
+export async function resetStore() {
+  const seeded = await makeSeed();
+  await saveStore(seeded);
+  return seeded;
 }
 
 let writeQueue = Promise.resolve();

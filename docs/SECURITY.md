@@ -23,3 +23,25 @@ Doctor A can access `record-a` because an active consent links Doctor A to Patie
 This is a prototype with synthetic records only. Local persistence is a JSON adapter for deterministic demos; production deployment must use a managed database, HTTPS, secret injection, backups, access logging, and a process supervisor. The JSON adapter is not horizontally scalable and is not a claim of production-grade database durability.
 
 Authenticated encryption of medical fields is **not implemented** in this prototype; no encryption key or encryption claim is made. Audit records are hash-chained and the integrity endpoint has been tested against a controlled persisted-record modification, so the demonstrated property is **tamper-evident**, not tamper-proof.
+
+
+## Realtime security boundary
+
+Socket.IO is authenticated from the same server-side session cookie as REST. Room membership is derived from the authenticated user and role. Live payloads contain event metadata only; clinical records and notes are never broadcast. The REST API remains authoritative for consent, BOLA checks, lockdown enforcement, anomaly severity, and audit writes.
+
+The Admin Security Command Center’s BOLA, honeytoken, anomaly, containment, reset, and audit controls call actual backend routes. The browser does not increment security counters or decide whether an attack passed. The anomaly detector is explicitly **rule-based behavioral anomaly detection**.
+
+The current realtime implementation is suitable for a controlled single-process demonstration. It does not claim a horizontally scalable Socket.IO adapter, external event bus, production TLS, MongoDB persistence, or encrypted medical fields.
+
+
+## Hardening completion
+
+Consent requests are now doctor-initiated and patient-decided. The server validates the doctor/patient appointment relationship, reason, duration, request ownership, decision state, expiry, and later record access. Approval and denial are audited and published to scoped Socket.IO rooms; revocation and expiry deny subsequent sensitive access.
+
+Authorized synthetic exports create persisted forensic provenance records with trace IDs, actor, role, resource, purpose, timestamp, and session reference. Admin lookup is scoped to the trace ID and does not expose unrelated clinical data.
+
+Session records now contain a family identifier. Reuse of a revoked or expired signed token is treated as **SESSION REPLAY DETECTED**: the family is revoked, a high-severity event is audited, the admin room is notified, and the request is denied.
+
+The controlled breach simulation uses actual AES-256-GCM encryption/decryption with an environment-provided 32-byte key. The key is never returned. The Gemini assistant is optional and server-side only; its prompt is least-privilege, rejects common injection/data-exfiltration requests, and never receives the database or medical records.
+
+These features do not change the prototype boundary: local JSON persistence is not production database durability, and this device has not permitted browser/WebSocket or three-device network verification.

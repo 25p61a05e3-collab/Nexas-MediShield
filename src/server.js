@@ -23,8 +23,17 @@ const MAX_BODY = 32 * 1024;
 let store;
 let io;
 
-if (NODE_ENV === 'production' && SESSION_SECRET.length < 32) throw new Error('SESSION_SECRET must be at least 32 characters in production');
-if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) throw new Error('CORS_ORIGIN must be explicitly configured in production');
+if (NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+    throw new Error('SESSION_SECRET must be explicitly configured and at least 32 characters in production');
+  }
+  if (!process.env.CORS_ORIGIN) {
+    throw new Error('CORS_ORIGIN must be explicitly configured in production');
+  }
+  if (!/^[0-9a-f]{64}$/i.test(ENCRYPTION_KEY)) {
+    throw new Error('ENCRYPTION_KEY must be configured as 64 hexadecimal characters in production');
+  }
+}
 
 const json = (value) => JSON.stringify(value);
 const now = () => new Date().toISOString();
@@ -96,7 +105,9 @@ function headers(req, res, rid) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'");
+  if (NODE_ENV === 'production') res.setHeader('Strict-Transport-Security', 'max-age=63072000');
   if (!req.headers.origin || req.headers.origin === CORS_ORIGIN) res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS');
@@ -371,10 +382,12 @@ async function route(req, res) {
 async function serveStatic(req, res) {
   const pathname = new URL(req.url, `http://${req.headers.host || 'localhost'}`).pathname;
   const requested = pathname === '/' ? '/index.html' : pathname;
-  const safePath = path.normalize(requested).replace(/^([.][.][/\\])+/, '');
-  const file = path.join(__dirname, 'public', safePath);
   const publicRoot = path.resolve(__dirname, 'public');
-  if (!file.startsWith(`${publicRoot}${path.sep}`)) { res.statusCode = 404; return res.end('Not found'); }
+  let decodedPath;
+  try { decodedPath = decodeURIComponent(requested); } catch { res.statusCode = 404; return res.end('Not found'); }
+  const file = path.resolve(publicRoot, `.${path.sep}${decodedPath.replace(/^[/\\]+/, '')}`);
+  const relativePath = path.relative(publicRoot, file);
+  if (relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) { res.statusCode = 404; return res.end('Not found'); }
   try { const content = await fs.readFile(file); const type = file.endsWith('.html') ? 'text/html' : file.endsWith('.css') ? 'text/css' : 'text/javascript'; res.writeHead(200, { 'Content-Type': `${type}; charset=utf-8`, 'X-Content-Type-Options': 'nosniff' }); res.end(content); } catch { res.writeHead(404); res.end('Not found'); }
 }
 

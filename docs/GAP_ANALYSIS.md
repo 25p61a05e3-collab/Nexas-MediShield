@@ -80,3 +80,23 @@ The implementation is complete only when automated tests demonstrate:
 The implementation was independently inspected and retested after the baseline handoff. Syntax checks passed and the security suite was expanded to 11 passing tests covering origin enforcement, login throttling, malformed JSON, body limits, patient isolation, consent revocation, and controlled tamper-evident audit verification. An external localhost health probe was attempted but was blocked by the execution device; no external network coverage is claimed.
 
 The remaining concrete gaps are deployment and infrastructure boundaries: the prototype uses an atomic JSON adapter rather than a managed database, has no database indexes or migration layer, is not publicly deployed, and does not implement authenticated encryption for clinical fields. These limitations remain explicitly documented and are not represented as completed security controls.
+
+
+## 8. Live platform extension
+
+Implemented without replacing the security foundation:
+
+- Socket.IO attached to the existing HTTP server with authenticated user, patient, and role rooms.
+- Server-authoritative appointment, consent, record, security, honeytoken, anomaly, session, lockdown, recovery, audit, and demo-reset events.
+- Admin-only UI simulations for BOLA, honeytoken, anomaly, containment, audit verification, and synthetic reset.
+- Role/device identity, live notification drawer, event feed, command-center metrics, and responsive mobile layout.
+- Configurable `HOST` for controlled LAN testing; explicit CORS remains enforced.
+
+Remaining gaps are intentionally honest: the current JSON adapter is not a production/shared database, browser/WebSocket testing was blocked by this device’s localhost policy, no public HTTPS deployment was performed, and the patient-to-doctor access-request UI remains less complete than the underlying consent and authorization controls. AI, field encryption, production monitoring, and horizontal realtime scaling are not claimed.
+
+
+## 9. Final hardening pass
+
+Closed gaps include doctor-initiated patient-controlled time-bound consent, prompt-free booking and consent UI, forensic provenance export/lookup, session-family replay detection, real AES-256-GCM breach simulation, and a server-only optional Gemini assistant with injection/data-exfiltration rejection.
+
+Remaining gaps are deliberate and documented: no upload surface exists, so malicious-upload defense is not applicable; the Gemini provider path was not externally exercised because no key was configured; the local device blocked browser/WebSocket verification; the JSON adapter is not production persistence; and no HTTPS/WSS/managed database deployment has been performed.

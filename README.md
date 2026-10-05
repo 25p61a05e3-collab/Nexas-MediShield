@@ -103,3 +103,18 @@ npm start
 ```
 
 The main red-team path is: Doctor A reads Patient A's consented record, attempts Patient B's record and receives `403`, then an administrator sees the generated security event, tests the `HONEY-001` alert, and activates incident lockdown.
+
+
+## MediShield — Live Zero-Trust Clinic Security Platform
+
+The Nexas implementation extends the secure clinic prototype into a live, server-authoritative zero-trust demonstration. Patient, Doctor, and Admin/Security Operator experiences remain role-specific while sharing the same authenticated backend state.
+
+- **Patient:** privacy center, synthetic appointments, records, consent, access history, alerts, and mobile-first navigation.
+- **Doctor:** clinical appointments, consented records, access history, and live security notifications.
+- **Admin:** Security Command Center, live feed, rule-based anomaly telemetry, honeytoken, BOLA simulation, containment, audit verification, and synthetic demo reset.
+- **Realtime:** Socket.IO authenticates the existing session cookie and publishes minimized events to scoped user, patient, and role rooms. Sensitive record content is never broadcast.
+
+See [`docs/REALTIME.md`](docs/REALTIME.md) for transport and LAN configuration and [`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md) for the exact three-device five-minute sequence. The project remains honest about its local JSON persistence, rule-based detection, tamper-evident audit chain, and undeployed HTTPS boundary.
+
+
+The final hardening pass adds server-enforced time-bound consent requests, provenance trace IDs for authorized synthetic exports, session-family replay detection, real AES-256-GCM breach simulation, and an optional server-only privacy-first Gemini assistant. See `docs/ACCEPTANCE_MATRIX.md` for the exact PASS/PARTIAL/UNVERIFIED matrix; the project does not claim production readiness while persistence and network deployment remain local-prototype boundaries.

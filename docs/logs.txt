@@ -625,7 +625,7 @@ Agent Response Summary:
 The project is now stabilized against the remaining security regressions. The Gemini assistant safely falls back to a deterministic 503 when unavailable, while the real server-side integration remains available in configured deployments, and the admin Socket.IO channel reliably receives honeytoken and security alerts as expected.
 
 Commit SHA:
-356c5a5
+0fe5955
 
 Files Modified / Created:
 * src/server.js (Modified)
@@ -636,3 +636,31 @@ Actions Taken:
 * Isolated Gemini credentials from automated tests while preserving server-side functionality.
 * Corrected the realtime security event routing for admin Socket.IO notifications.
 * Ran npm run check and npm test to verify the final regression fix.
+================================================================================
+[2026-10-05T20:02:08+05:30] Final server production hardening
+================================================================================
+User Prompt (verbatim):
+The user requested final server.js security hardening: require explicit production SESSION_SECRET, CORS_ORIGIN, and 64-hex ENCRYPTION_KEY; preserve authorization, audit, AI, CORS, Socket.IO, input protections, and static serving; run syntax, project checks, all 16 tests, Git safety checks, diff review, then stage and commit only legitimate changes and push main without force.
+
+Agent Response:
+Added production startup checks for explicit session, CORS, and encryption configuration; added Permissions-Policy and production HSTS headers; and hardened static file resolution by decoding URL paths, resolving within the public directory, and rejecting traversal. Preserved the development fallback and existing security controls. Verified the three production configuration guards and ran a production-mode smoke check covering headers, normal static assets, and encoded traversal. `node --check server.js`, `npm run check`, and `npm test` passed; all 16 tests passed with zero failures and zero skips. Updated the acceptance and verification docs to reflect the current Socket.IO test and complete passing suite. Removed existing Markdown trailing spaces flagged by `git diff --check`, retaining rendered line breaks with `<br>`. `.env` remains ignored and untracked; the root package lock is absent; `src/package-lock.json` remains present. Existing unrelated root artifacts were left unstaged.
+
+Agent Response Summary:
+The final hardening enforces production secrets/configuration without exposing values, preserves same-origin policy and server-side controls, and validates static paths against traversal. Syntax and all security tests passed. Git staging and push remain subject to final staging review and commit outcome.
+
+Commit SHA:
+PENDING
+
+Files Modified / Created:
+* src/server.js (Modified)
+* src/public/index.html (Modified)
+* docs/ACCEPTANCE_MATRIX.md (Modified)
+* docs/DEMO_GUIDE.md (Modified)
+* docs/VERIFICATION.md (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Added production configuration validation, Permissions-Policy, and production HSTS.
+* Hardened static path resolution and confirmed normal assets and traversal rejection.
+* Ran node --check server.js, npm run check, npm test (16/16), production guard checks, and git diff --check.
+* Verified .env ignore status, root package-lock absence, src/package-lock presence, and left unrelated root artifacts unstaged.

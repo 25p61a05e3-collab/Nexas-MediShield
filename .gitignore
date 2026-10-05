@@ -11,3 +11,8 @@ node_modules/
 
 # Generated delivery artifacts
 outputs/
+
+# Manus local tooling and browser artifacts
+.manus/
+.work/
+src/.work/

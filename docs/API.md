@@ -44,3 +44,28 @@ All data is synthetic and only for local demonstration.
 | Doctor A | `doctor.a@medishield.demo` | `DemoDoctorA!2026` |
 | Doctor B | `doctor.b@medishield.demo` | `DemoDoctorB!2026` |
 | Admin | `admin@medishield.demo` | `DemoAdmin!2026` |
+
+
+## Realtime and admin demo controls
+
+Socket.IO is served from the same origin at `/socket.io/`. The handshake requires the authenticated `ms_session` cookie. Clients receive only minimized events in scoped rooms; sensitive record detail remains REST-only.
+
+- `POST /api/red-team/bola` — admin-only controlled BOLA simulation using the existing doctor authorization predicate; returns the actual status and records an audit/security event.
+- `POST /api/red-team/honeytoken` — admin-only trigger of the real `HONEY-001` honeytoken logic.
+- `POST /api/red-team/anomaly` — admin-only repeated-denial simulation using the real rule-based detector.
+- `POST /api/demo/reset` — admin-only reset of synthetic state and broadcast of `demo.reset`.
+
+All new routes require authentication, admin authorization, bounded JSON input, safe errors, and audit/security generation where applicable. No endpoint trusts a client-supplied role or security result.
+
+
+## Hardening routes
+
+- `GET /api/consent-requests` — caller-scoped pending and decided access requests.
+- `POST /api/consent-requests` — doctor-only request for a patient with a scheduled relationship; validates reason and duration.
+- `PATCH /api/consent-requests/:id` — patient-owner-only approval or denial; approval creates or updates a time-bound consent.
+- `POST /api/records/:id/export` — authorized synthetic record export with persisted trace ID and provenance metadata.
+- `GET /api/forensics?traceId=...` — admin-only provenance lookup.
+- `POST /api/security/breach-simulation` — admin-only real AES-256-GCM round-trip demonstration; unavailable unless `ENCRYPTION_KEY` is configured.
+- `POST /api/assistant` — authenticated, least-privilege optional Gemini assistant; rejects prompt injection/data-exfiltration questions and returns an unavailable response when `GEMINI_API_KEY` is absent.
+
+Reused session tokens are detected before protected routes. The server revokes the token family, emits a security event, notifies the admin room, and returns `401` without exposing session details.
