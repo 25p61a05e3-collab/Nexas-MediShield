@@ -757,3 +757,244 @@ Actions Taken:
 * Applied the production-only host binding adjustment.
 * Ran node --check server.js, npm run check, npm test (16/16, zero skipped), and git diff --check.
 * Reviewed the exact server.js diff.
+================================================================================
+[2026-10-05T20:37:58+05:30] SESSION START
+================================================================================
+Agent: Copilot
+Repo Root: C:\Users\sanda\BuildSecure
+Branch: main
+System Time: 2026-10-05T20:37:58+05:30
+Deadline: 2026-10-06T11:00:00+05:30
+================================================================================
+[2026-10-05T20:37:58+05:30] Correct Render production detection
+================================================================================
+User Prompt (verbatim):
+You are fixing the MediShield Render deployment. DO NOT rebuild the project and DO NOT modify unrelated functionality.
+
+PROJECT:
+C:\Users\sanda\BuildSecure
+
+APP:
+C:\Users\sanda\BuildSecure\src
+
+CURRENT RENDER FAILURE:
+
+Render successfully builds the project, but the runtime logs show:
+
+MediShield listening on http://127.0.0.1:4100
+
+Then:
+
+No open ports detected on 0.0.0.0
+Port scan timeout reached
+
+Render checked out commit:
+20b428969690c90bd0e58bf205ee29c728643ca1
+
+The application must bind to Render's injected PORT and to 0.0.0.0 in production.
+
+IMPORTANT:
+- Do not weaken security.
+- Do not remove production environment validation.
+- Do not modify tests to make them pass.
+- Do not hardcode Render's port.
+- Do not hardcode 4100 as the production port.
+- Do not add HOST=127.0.0.1 for production.
+- Preserve local development behavior.
+- Preserve Socket.IO on the same HTTP server.
+- Preserve all existing MediShield functionality.
+
+STEP 1 — INSPECT FIRST
+
+Inspect the actual current src/server.js.
+
+Find:
+- PORT definition
+- HOST definition
+- process.env.HOST usage
+- process.env.PORT usage
+- server.listen(...)
+- app.listen(...)
+- Socket.IO server creation
+
+Also inspect:
+- src/.env.example
+- src/package.json
+
+Search for every occurrence of:
+
+HOST
+PORT
+127.0.0.1
+localhost
+listen(
+
+Do not make changes until you understand where 127.0.0.1:4100 is coming from.
+
+STEP 2 — FIX PRODUCTION BINDING
+
+The effective production behavior must be:
+
+const PORT = Number(process.env.PORT || 4100);
+
+const HOST =
+  process.env.NODE_ENV === 'production'
+    ? '0.0.0.0'
+    : (process.env.HOST || '127.0.0.1');
+
+Production MUST therefore bind to 0.0.0.0 even if HOST is accidentally configured as localhost.
+
+The actual HTTP server must use:
+
+server.listen(PORT, HOST, () => {
+  console.log(`MediShield listening on http://${HOST}:${PORT}`);
+});
+
+If the project uses app.listen(), adapt it correctly.
+
+Do NOT create a second HTTP server.
+
+Socket.IO must remain attached to the same HTTP server.
+
+STEP 3 — RENDER ENVIRONMENT SAFETY
+
+The application must use:
+
+process.env.PORT
+
+for the Render port.
+
+Do not require PORT to be manually configured in Render.
+
+If server.js currently honors HOST in production and that causes localhost binding, fix the code so production always uses 0.0.0.0.
+
+Do not expose secrets.
+
+STEP 4 — LOCAL DEVELOPMENT
+
+Local development should continue to work on:
+
+127.0.0.1:4100
+
+when NODE_ENV is not production.
+
+Do not break:
+
+npm start
+
+npm run check
+
+npm test
+
+STEP 5 — PRODUCTION SECURITY
+
+Preserve all existing production checks:
+
+- SESSION_SECRET explicitly configured and >=32 characters
+- CORS_ORIGIN explicitly configured
+- ENCRYPTION_KEY exactly 64 hexadecimal characters
+- security headers
+- CORS allowlist
+- authentication
+- authorization/RBAC
+- BOLA/IDOR protection
+- consent enforcement
+- session security
+- rate limiting
+- audit trail
+- honeytoken
+- anomaly detection
+- lockdown
+- Socket.IO security events
+- AES-256-GCM
+- AI security
+
+Do not weaken any of these.
+
+STEP 6 — VERIFY
+
+Run:
+
+cd C:\Users\sanda\BuildSecure\src
+
+node --check server.js
+npm run check
+npm test
+
+Expected:
+
+16 pass
+0 fail
+0 skipped
+
+Then:
+
+cd C:\Users\sanda\BuildSecure
+
+git diff --check
+git status --short
+
+STEP 7 — VERIFY THE ACTUAL CHANGE
+
+Run:
+
+git diff -- src/server.js
+
+Confirm the diff actually changes the production binding behavior.
+
+Do not commit if the diff does not contain the necessary fix.
+
+STEP 8 — COMMIT AND PUSH
+
+Only if all checks pass:
+
+git add src/server.js
+git commit -m "fix: bind MediShield to Render production port"
+git push origin main
+
+Do NOT force push.
+
+STEP 9 — FINAL REPORT
+
+Report:
+
+1. Where 127.0.0.1:4100 was coming from
+2. Exact production HOST behavior
+3. Exact production PORT behavior
+4. node --check
+5. npm run check
+6. npm test result
+7. git diff --check
+8. commit SHA
+9. push status
+
+Do not claim Render is fixed until the code has actually been pushed.
+
+IMPORTANT FINAL CONDITION:
+
+The expected Render startup must become conceptually:
+
+MediShield listening on http://0.0.0.0:<Render PORT>
+
+NOT:
+
+MediShield listening on http://127.0.0.1:4100
+
+Agent Response:
+The earlier production-only host branch was already present in the checked-out source, but it depended exclusively on NODE_ENV being set to production. The runtime log showing 127.0.0.1:4100 indicates that the running process is not recognizing production mode (and is using the fallback port instead of Render's injected PORT). Updated detection so the Render-injected RENDER_SERVICE_ID identifies a Render service as production even if NODE_ENV is unset or incorrectly says development. That mode now binds 0.0.0.0 and still enforces the existing production configuration checks, Secure session cookies, and HSTS. PORT continues to come from process.env.PORT with 4100 only as the local fallback. Socket.IO remains attached to the same server. A smoke test with NODE_ENV=development and HOST=127.0.0.1, plus a synthetic Render service ID and synthetic credentials, verified binding to 0.0.0.0 at the supplied port. node --check, npm run check, and npm test passed (16/16, zero failures or skips); git diff --check passed.
+
+Agent Response Summary:
+The root cause was production detection relying only on NODE_ENV despite the reported Render runtime not behaving as production. Render's service marker now activates the production safety mode and all-interface binding, while local development retains its configured/default loopback behavior. The complete test suite passed without modifying tests.
+
+Commit SHA:
+05b44db
+
+Files Modified / Created:
+* src/server.js (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Inspected server host/port/listen/Socket.IO configuration, .env.example, package manifest, all host/port occurrences, and recent repository history.
+* Added Render service-marker detection and applied it consistently to binding and existing production security behavior.
+* Confirmed injected-port binding overrides a conflicting localhost HOST when NODE_ENV says development.
+* Ran node --check server.js, npm run check, npm test (16/16, zero skipped), and git diff --check.
