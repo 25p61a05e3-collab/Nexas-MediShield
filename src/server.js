@@ -96,7 +96,8 @@ function sessionDetails(req) {
   return { sid, session, replay: Boolean(validSignature && (session.revoked || session.expiresAt < Date.now())) };
 }
 function setCookie(res, value, maxAge = SESSION_TTL_MS / 1000) {
-  const flags = [`ms_session=${encodeURIComponent(value)}`, 'HttpOnly', 'SameSite=Lax', 'Path=/', `Max-Age=${Math.max(0, Math.floor(maxAge))}`];
+  const sameSite = IS_PRODUCTION ? 'None' : 'Lax';
+  const flags = [`ms_session=${encodeURIComponent(value)}`, 'HttpOnly', `SameSite=${sameSite}`, 'Path=/', `Max-Age=${Math.max(0, Math.floor(maxAge))}`];
   if (IS_PRODUCTION) flags.push('Secure');
   res.setHeader('Set-Cookie', flags.join('; '));
 }
