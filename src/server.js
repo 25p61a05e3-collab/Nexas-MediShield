@@ -9,8 +9,8 @@ import { loadStore, resetStore, saveStore, hashText, hashPassword, verifyPasswor
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 4100);
-const HOST = process.env.HOST || '127.0.0.1';
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const HOST = NODE_ENV === 'production' ? '0.0.0.0' : (process.env.HOST || '127.0.0.1');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'development-only-change-this-secret-32';
 const CORS_ORIGIN = process.env.CORS_ORIGIN || `http://localhost:${PORT}`;
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
