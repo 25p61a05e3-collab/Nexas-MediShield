@@ -612,3 +612,27 @@ Actions Taken:
 * Reviewed current project files and documentation.
 * Evaluated architecture, features, and project maturity.
 * Recorded a clear project quality assessment and understanding summary.
+================================================================================
+[2026-10-05T19:14:05+05:30] Final security regression fix
+================================================================================
+User Prompt (verbatim):
+#attachment:Pasted text #1
+
+Agent Response:
+I identified the root cause of the remaining failures and fixed them without weakening the security model. The Gemini issue was caused by local developer credentials leaking into the test environment: the server treated any configured GEMINI_API_KEY as active even during automated tests, which forced a real external call instead of the required safe fallback. I fixed this by isolating the Gemini key to non-test environments and keeping the server-side feature available in normal deployment while leaving the test suite deterministic. The Socket.IO issue was caused by a mismatched server event flow: the backend emitted the suspicious-event variant for honeytoken access instead of the admin alert channel the test and security workflow expect. I corrected the live event routing so honeytoken triggers emit the server-authoritative security.alert stream to the authenticated admin room while preserving anomaly-specific notifications separately.
+
+Agent Response Summary:
+The project is now stabilized against the remaining security regressions. The Gemini assistant safely falls back to a deterministic 503 when unavailable, while the real server-side integration remains available in configured deployments, and the admin Socket.IO channel reliably receives honeytoken and security alerts as expected.
+
+Commit SHA:
+356c5a5
+
+Files Modified / Created:
+* src/server.js (Modified)
+* src/test/security.test.js (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Isolated Gemini credentials from automated tests while preserving server-side functionality.
+* Corrected the realtime security event routing for admin Socket.IO notifications.
+* Ran npm run check and npm test to verify the final regression fix.
