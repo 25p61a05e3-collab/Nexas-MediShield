@@ -6,6 +6,7 @@
   <title>MediShield | Secure care operations</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/security-layers.css">
+  <link rel="stylesheet" href="/soc.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -14,7 +15,7 @@
       <section class="card login-card"><p class="eyebrow">SECURE SIGN IN</p><h2>Welcome back</h2><p class="muted">Use a demo identity to explore the controls.</p><form id="login-form"><label>Email<input name="email" type="email" autocomplete="username" required placeholder="you@example.com"></label><label>Password<input name="password" type="password" autocomplete="current-password" required placeholder="Your password"></label><button class="primary" type="submit">Sign in securely</button><p id="login-error" class="error" role="alert"></p></form><details class="demo-help"><summary>Demo identities</summary><p>Patient: patient.a@medishield.demo / DemoPatientA!2026</p><p>Doctor: doctor.a@medishield.demo / DemoDoctorA!2026</p><p>Admin: admin@medishield.demo / DemoAdmin!2026</p></details></section>
     </main>
     <main id="dashboard-view" class="hidden">
-      <header class="topbar"><div><p class="eyebrow">MEDISHIELD · LIVE ZERO-TRUST CLINIC</p><h1 id="page-title">Dashboard</h1></div><div class="top-actions"><span id="role-chip" class="status-pill role-chip">DEVICE</span><span id="lockdown-badge" class="status-pill">SYSTEM NORMAL</span><button id="notification-toggle" class="ghost" aria-label="Open notifications">Alerts <span id="notification-count">0</span></button><span id="user-label" class="muted"></span><button id="logout-btn" class="ghost">Sign out</button></div></header>
+      <header class="topbar"><div><p id="product-label" class="eyebrow">MEDISHIELD · LIVE ZERO-TRUST CLINIC</p><h1 id="page-title">Dashboard</h1></div><div class="top-actions"><span id="role-chip" class="status-pill role-chip">DEVICE</span><span id="lockdown-badge" class="status-pill">SYSTEM NORMAL</span><span id="realtime-status" class="status-pill realtime-status" role="status" aria-live="polite">REALTIME · DISCONNECTED</span><button id="notification-toggle" class="ghost" aria-label="Open notifications">Alerts <span id="notification-count">0</span></button><span id="user-label" class="muted"></span><button id="logout-btn" class="ghost">Sign out</button></div></header>
       <div class="workspace"><aside id="sidebar" class="sidebar"></aside><section class="content"><div id="flash" class="flash hidden" role="status"></div><section id="summary-grid" class="summary-grid"></section><section id="panel" class="panel card"></section><aside id="notification-drawer" class="notification-drawer card hidden" aria-live="polite"><div class="toolbar"><strong>Live security timeline</strong><button id="clear-notifications" class="ghost">Clear</button></div><div id="notification-list"></div></aside></section></div>
     </main>
   </div>

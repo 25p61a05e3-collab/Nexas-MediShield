@@ -1451,3 +1451,122 @@ Actions Taken:
 * Verified development cookie remains HttpOnly, SameSite=Lax, and non-Secure.
 * Ran node --check server.js, npm run check, and npm test (16/16 passed, zero skipped).
 * Reviewed the exact source diff and confirmed git diff --check.
+
+================================================================================
+[2026-10-05T21:32:28+05:30] Resuming MediShield UI upgrade
+================================================================================
+User Prompt (context provided):
+Some of the conversation history has been summarized to free up context.
+
+The supplied conversation history repeats prior MediShield security, deployment,
+cookie, and frontend requests already recorded above. Its summary says the
+current task is a pending enterprise SOC UI/UX upgrade across Patient, Doctor,
+and Admin views, preserving the existing static 10 security-layer cards,
+backend/security behavior, API and realtime functionality, and adding accessible,
+responsive, reduced-motion-aware visuals based on actual state and events.
+
+Agent Response:
+I checked the repository onboarding record and found that its agreement is
+recorded for C:\Users\sanda\Documents\Manus\2026-10-05\olx0VA, not the current
+repository root C:\Users\sanda\BuildSecure. The onboarding gate therefore
+requires your agreement for this repository before I can resume the UI work.
+No implementation changes were retained for this turn.
+
+Agent Response Summary:
+Compared the recorded agreement root with the current repository root and
+confirmed the team metadata is populated. I made no lasting application-code
+changes and am pausing the requested UI upgrade until the required agreement is
+provided.
+
+Commit SHA:
+Not committed; waiting for the required agreement.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Read AGENTS.md and checked the onboarding agreement record, current root,
+  team metadata, repository status, and existing frontend context.
+* Reverted the temporary index.html edit from this turn; no application-code
+  changes remain.
+
+================================================================================
+[2026-10-05T21:34:30+05:30] Onboarding agreement for current repository
+================================================================================
+User Prompt (verbatim):
+I agree
+
+Agent Response:
+Agreement recorded for C:\Users\sanda\BuildSecure. The existing Nexas team
+metadata and repository remote are present, so I am resuming the pending
+MediShield frontend UI/UX upgrade without changing backend behavior or security
+controls.
+
+Agent Response Summary:
+Recorded the required agreement for the current repository root and confirmed
+the existing two-member team metadata. I am continuing the previously requested
+frontend-only UI/UX work.
+
+Commit SHA:
+Pending this turn's implementation commit.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Recorded the user's exact agreement.
+
+================================================================================
+[2026-10-05T21:34:30+05:30] ONBOARDING COMPLETE
+================================================================================
+AGREEMENT RECORDED: C:\Users\sanda\BuildSecure
+Agent: Copilot
+System Time: 2026-10-05T21:34:30+05:30
+Deadline: 2026-10-06T11:00:00+05:30
+
+================================================================================
+[2026-10-05T21:49:37+05:30] Refreshing MediShield enterprise SOC UI
+================================================================================
+User Prompt (verbatim):
+I agree
+
+Agent Response:
+Applied a frontend-only enterprise SOC visual refresh with a dark responsive
+theme, role-aware product and role labels, realtime connection state and
+lockdown indicators derived from existing client/server state, and a short
+entry animation only for newly received timeline notifications. Preserved the
+existing role views, API routes, credentials behavior, Socket.IO event map, and
+the ten static non-interactive security-layer cards. Added visible keyboard
+focus styling and reduced-motion support. No backend, test, dependency, or
+security-control changes were made.
+
+Validation passed: npm run check; npm test (16 passed, 0 failed, 0 skipped);
+git diff --check. Browser smoke testing on the existing local instance verified
+the Admin dashboard, a connected realtime indicator, all ten static cards, and
+no horizontal overflow at a 375px viewport. The initial attempt to start a
+second server was refused because 127.0.0.1:4100 was already occupied; the
+existing local instance was used for the browser check. The code has not been
+deployed.
+
+Agent Response Summary:
+Added a dedicated SOC stylesheet and minimal frontend state presentation
+updates, keeping all authorization and security behavior server-authoritative.
+The current security suite remains green and the responsive Admin view was
+checked in a browser; the 10-layer cards remain static and have no controls.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+* src/public/app.js (Modified)
+* src/public/index.html (Modified)
+* src/public/soc.css (Created)
+
+Actions Taken:
+* Inspected existing role views, state, event handlers, styles, and architecture notes.
+* Added role-aware labels, realtime/lockdown display updates, and actual-event notification entry motion.
+* Added responsive dark SOC styling, high-contrast focus states, and reduced-motion handling.
+* Ran npm run check and npm test (16/16 passed; no skips).
+* Ran git diff --check and reviewed changed-path scope.
+* Browser-tested Admin dashboard, realtime connected state, static cards, and 375px layout.
