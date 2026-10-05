@@ -1233,7 +1233,7 @@ Agent Response Summary:
 The Admin SOC view now explains MediShield's ten requested security layers without changing the dashboard's existing controls or behavior. The Admin dashboard is dynamically rendered by `security()` in `src/public/app.js`, so the markup is inserted there and styled in a dedicated scoped stylesheet.
 
 Commit SHA:
-PENDING
+55945fc
 
 Files Modified / Created:
 * src/public/app.js (Modified)
