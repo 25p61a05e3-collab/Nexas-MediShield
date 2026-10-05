@@ -998,3 +998,225 @@ Actions Taken:
 * Added Render service-marker detection and applied it consistently to binding and existing production security behavior.
 * Confirmed injected-port binding overrides a conflicting localhost HOST when NODE_ENV says development.
 * Ran node --check server.js, npm run check, npm test (16/16, zero skipped), and git diff --check.
+================================================================================
+[2026-10-05T20:50:05+05:30] Route Netlify frontend to Render API
+================================================================================
+User Prompt (verbatim):
+Fix the MediShield production frontend so the Netlify frontend communicates correctly with the Render backend.
+
+PROJECT:
+C:\Users\sanda\BuildSecure
+
+FRONTEND:
+src/public
+
+CURRENT FRONTEND:
+https://medishield-nexas.netlify.app/
+
+BACKEND:
+https://nexas-medishield.onrender.com
+
+IMPORTANT:
+- Do NOT rebuild the application.
+- Do NOT change the UI/design.
+- Do NOT modify server.js.
+- Do NOT weaken authentication/security.
+- Do NOT hardcode secrets.
+- Do NOT change the backend API routes.
+- Preserve local development functionality.
+- Preserve Socket.IO realtime functionality.
+- Make the smallest clean production-safe change.
+
+TASK 1 — API BASE URL
+
+Add a production-aware API base URL.
+
+Use:
+
+const API_BASE_URL =
+  window.location.hostname.endsWith('netlify.app')
+    ? 'https://nexas-medishield.onrender.com'
+    : '';
+
+Then change the API helper so relative API paths are resolved against API_BASE_URL.
+
+For example:
+
+async function api(path, options = {}) {
+  const url = `${API_BASE_URL}${path}`;
+
+  const response = await fetch(url, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    },
+    ...options
+  });
+
+  ...
+}
+
+Do not modify the individual API route paths throughout the application.
+
+Local development must continue using the same-origin server:
+
+http://127.0.0.1:4100
+
+Production Netlify must use:
+
+https://nexas-medishield.onrender.com
+
+TASK 2 — SOCKET.IO
+
+Update connectRealtime() so production Socket.IO connects to the Render backend.
+
+Use the same backend origin:
+
+const SOCKET_URL =
+  window.location.hostname.endsWith('netlify.app')
+    ? 'https://nexas-medishield.onrender.com'
+    : window.location.origin;
+
+Then use:
+
+state.socket = window.io(SOCKET_URL, {
+  withCredentials: true,
+  autoConnect: false
+});
+
+Preserve all existing event handlers.
+
+Do not remove:
+- security.alert
+- security.anomaly
+- honeytoken.triggered
+- consent events
+- appointment events
+- record events
+- session events
+- lockdown/recovery events
+- export/forensics events
+- demo.reset
+
+TASK 3 — SECURITY
+
+Do NOT put any secret in app.js.
+
+Do NOT expose:
+- GEMINI_API_KEY
+- SESSION_SECRET
+- ENCRYPTION_KEY
+- database credentials
+
+The frontend may contain only the public Render API URL.
+
+Do not use wildcard CORS.
+
+TASK 4 — COOKIE / CREDENTIAL SUPPORT
+
+Preserve:
+
+credentials: 'include'
+
+for API requests.
+
+The Render backend must remain responsible for authentication and authorization.
+
+The frontend must never make authorization decisions.
+
+TASK 5 — DO NOT BREAK LOCAL DEVELOPMENT
+
+Verify that:
+
+http://127.0.0.1:4100
+
+still works locally.
+
+When running locally, API requests must continue to resolve to:
+
+/api/...
+
+When running on:
+
+https://medishield-nexas.netlify.app
+
+API requests must resolve to:
+
+https://nexas-medishield.onrender.com/api/...
+
+Socket.IO must similarly connect to the Render backend in production.
+
+TASK 6 — VERIFY
+
+Run:
+
+cd C:\Users\sanda\BuildSecure\src
+
+node --check server.js
+npm run check
+npm test
+
+Expected:
+
+16 pass
+0 fail
+0 skipped
+
+Then:
+
+cd C:\Users\sanda\BuildSecure
+
+git diff --check
+
+Review:
+
+git diff -- src/public/app.js
+
+Make sure only the intended API/Socket.IO production URL handling changed.
+
+TASK 7 — COMMIT AND PUSH
+
+Only if all tests pass:
+
+git add src/public/app.js
+git commit -m "fix: connect Netlify frontend to Render backend"
+git push origin main
+
+Do NOT force push.
+
+TASK 8 — FINAL REPORT
+
+Report:
+- API production URL handling: PASS
+- Socket.IO production URL handling: PASS
+- Local development preserved: PASS/FAIL
+- node --check: PASS/FAIL
+- npm run check: PASS/FAIL
+- npm test: X/16
+- git diff --check: PASS/FAIL
+- commit SHA
+- push status
+
+Do not claim the Netlify deployment is working until it is actually tested in the browser.
+
+Agent Response:
+Updated `src/public/app.js` to route relative API calls from `*.netlify.app` to the public Render API origin, while preserving same-origin routing for local development. Socket.IO now explicitly targets the same Render origin on Netlify and continues using the current origin elsewhere; all realtime event handlers and `credentials: 'include'` were preserved. URL selection checks resolved to Render on the Netlify hostname and relative/same-origin endpoints locally. `node --check server.js`, `npm run check`, `npm test` (16/16, 0 failures, 0 skips), and `git diff --check` passed. No secrets or UI changes were introduced.
+
+Important deployment limitation: API CORS must allow the exact Netlify origin. Also, Netlify and Render are cross-site origins; the current backend cookie uses `SameSite=Lax`, so browser cross-site API and Socket.IO requests will not carry the session cookie. Therefore authenticated production browser behavior is not verified by this frontend-only change, and the backend cookie/CORS configuration must be addressed separately with authorization before claiming an end-to-end fix.
+
+Agent Response Summary:
+Added only the requested API and Socket.IO origin selection in the frontend, keeping local development and event handling unchanged. Static checks and all security tests passed. The code change does not itself resolve cross-site cookie restrictions or verify a live Netlify-to-Render browser session.
+
+Commit SHA:
+a14c5f3
+
+Files Modified / Created:
+* src/public/app.js (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Inspected current API helper, Socket.IO initialization and handlers, package scripts, .env.example, architecture notes, recent activity, and worktree status.
+* Added the production API and Socket.IO base URLs without editing routes or backend files.
+* Ran node --check server.js, npm run check, npm test (16/16, no skips), diff whitespace check, and representative hostname URL selection.
+* Reviewed the frontend diff and left pre-existing untracked root files untouched.
