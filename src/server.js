@@ -10,7 +10,8 @@ import { loadStore, resetStore, saveStore, hashText, hashPassword, verifyPasswor
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 4100);
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const HOST = NODE_ENV === 'production' ? '0.0.0.0' : (process.env.HOST || '127.0.0.1');
+const IS_PRODUCTION = NODE_ENV === 'production' || Boolean(process.env.RENDER_SERVICE_ID);
+const HOST = IS_PRODUCTION ? '0.0.0.0' : (process.env.HOST || '127.0.0.1');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'development-only-change-this-secret-32';
 const CORS_ORIGIN = process.env.CORS_ORIGIN || `http://localhost:${PORT}`;
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
@@ -23,7 +24,7 @@ const MAX_BODY = 32 * 1024;
 let store;
 let io;
 
-if (NODE_ENV === 'production') {
+if (IS_PRODUCTION) {
   if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
     throw new Error('SESSION_SECRET must be explicitly configured and at least 32 characters in production');
   }
@@ -96,7 +97,7 @@ function sessionDetails(req) {
 }
 function setCookie(res, value, maxAge = SESSION_TTL_MS / 1000) {
   const flags = [`ms_session=${encodeURIComponent(value)}`, 'HttpOnly', 'SameSite=Lax', 'Path=/', `Max-Age=${Math.max(0, Math.floor(maxAge))}`];
-  if (NODE_ENV === 'production') flags.push('Secure');
+  if (IS_PRODUCTION) flags.push('Secure');
   res.setHeader('Set-Cookie', flags.join('; '));
 }
 function headers(req, res, rid) {
@@ -107,7 +108,7 @@ function headers(req, res, rid) {
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'");
-  if (NODE_ENV === 'production') res.setHeader('Strict-Transport-Security', 'max-age=63072000');
+  if (IS_PRODUCTION) res.setHeader('Strict-Transport-Security', 'max-age=63072000');
   if (!req.headers.origin || req.headers.origin === CORS_ORIGIN) res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS');
