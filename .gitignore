@@ -1,13 +1,19 @@
-# Local secrets and runtime state
 .env
 .env.*
 !.env.example
-src/data/*.json
-src/data/*.tmp
-
-# Node and local tooling
+!**/.env.example
 node_modules/
 *.log
+.DS_Store
+coverage/
+dist/
+build/
+tmp/
+temp/
+
+# Project data files
+src/data/*.json
+src/data/*.tmp
 
 # Generated delivery artifacts
 outputs/
